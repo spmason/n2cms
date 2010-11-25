@@ -4,6 +4,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Xml;
 using System.Xml.XPath;
+using N2.Tests.Fakes;
 using NUnit.Framework;
 using N2.Definitions;
 using N2.Details;
@@ -355,7 +356,7 @@ namespace N2.Tests.Serialization
 		{
 			XmlableItem item = CreateOneItem<XmlableItem>(1, "item", null);
 			item.ImageUrl = "da image";
-			AttachmentXmlWriter axw = new AttachmentXmlWriter();
+			AttachmentXmlWriter axw = new AttachmentXmlWriter(new FakeAttributeExplorer());
 
 			StringBuilder sb = new StringBuilder();
 			StringWriter sw = new StringWriter(sb);

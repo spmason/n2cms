@@ -5,6 +5,7 @@ using System.Text;
 using N2.Configuration;
 using N2.Definitions;
 using N2.Tests.Definitions.Items;
+using N2.Tests.Fakes;
 using NUnit.Framework;
 
 namespace N2.Tests.Definitions
@@ -29,7 +30,7 @@ namespace N2.Tests.Definitions
 		{
 			base.SetUp();
 			
-			builder = new DefinitionBuilder(typeFinder, new EngineSection());
+			builder = new DefinitionBuilder(typeFinder, new FakeAttributeExplorer(), new EngineSection());
 		}
 
 

@@ -60,7 +60,7 @@ namespace N2.Extensions.Tests.Mvc
 				.BelowNamespace("N2.Extensions.Tests.Mvc.Controllers").AssignableTo<IController>().Except(typeof(AnotherRegularController))
 				.ToArray();
 
-			var definitions = new DefinitionManager(new DefinitionBuilder(typeFinder, new EngineSection()), new N2.Edit.Workflow.StateChanger(), null, new EmptyProxyFactory());
+			var definitions = new DefinitionManager(new DefinitionBuilder(typeFinder, new FakeAttributeExplorer(), new EngineSection()), new N2.Edit.Workflow.StateChanger(), null, new EmptyProxyFactory());
 			var webContext = new ThreadContext();
 			var host = new Host(webContext, root.ID, root.ID);
 			var parser = new UrlParser(persister, webContext, host, new HostSection());

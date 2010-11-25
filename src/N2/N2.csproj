@@ -122,6 +122,7 @@
     <Compile Include="Collections\ItemList.generic.cs" />
     <Compile Include="Collections\TypeFilter.cs" />
     <Compile Include="Collections\ZoneFilter.cs" />
+    <Compile Include="Definitions\IAttributeExplorer.cs" />
     <Compile Include="Definitions\ICommentable.cs" />
     <Compile Include="Definitions\IContentPage.cs" />
     <Compile Include="Definitions\IDefinitionManager.cs" />
@@ -144,6 +145,9 @@
     <Compile Include="Edit\Installation\RebaseInfo.cs" />
     <Compile Include="Edit\ToolbarArea.cs" />
     <Compile Include="Edit\ToolbarPlugInAttribute.cs" />
+    <Compile Include="Engine\DependencyAttribute.cs" />
+    <Compile Include="Engine\DependencyInjector.cs" />
+    <Compile Include="Engine\IDependencyInjector.cs" />
     <Compile Include="Obsolete\AllowedParentsAttribute.cs" />
     <Compile Include="Integrity\AllowedZonesAttribute.cs" />
     <Compile Include="Definitions\ItemDefinition.cs" />

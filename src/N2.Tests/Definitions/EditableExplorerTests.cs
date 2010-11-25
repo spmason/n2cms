@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
+using N2.Tests.Fakes;
 using NUnit.Framework;
 using N2.Definitions;
 
@@ -10,9 +10,7 @@ namespace N2.Tests.Definitions
 	public class EditableExplorerTests : ItemTestsBase
 	{
 		EditableHierarchyBuilder hierarchyBuilder = new EditableHierarchyBuilder();
-		AttributeExplorer explorer = new AttributeExplorer();
-
-
+		AttributeExplorer explorer = new FakeAttributeExplorer();
 
 		[Test]
 		public void FindsDetailDefinedOnClass()

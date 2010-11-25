@@ -11,17 +11,20 @@ namespace N2.Persistence.Serialization
 	{
 		private readonly IDefinitionManager definitions;
 		private readonly IDictionary<string, IXmlReader> readers;
+		private readonly IAttributeExplorer explorer;
 		bool ignoreMissingTypes = true;
 
-		public ItemXmlReader(IDefinitionManager definitions)
-			: this(definitions, DefaultReaders())
+		public ItemXmlReader(IDefinitionManager definitions, IAttributeExplorer explorer)
+			: this(definitions, null, explorer)
 		{
+			this.explorer = explorer;
 		}
 
-		public ItemXmlReader(IDefinitionManager definitions, IDictionary<string, IXmlReader> readers)
+		public ItemXmlReader(IDefinitionManager definitions, IDictionary<string, IXmlReader> readers, IAttributeExplorer explorer)
 		{
 			this.definitions = definitions;
-			this.readers = readers;
+			this.explorer = explorer;
+			this.readers = readers ?? DefaultReaders();
 		}
 
 		public bool IgnoreMissingTypes
@@ -30,13 +33,13 @@ namespace N2.Persistence.Serialization
 			set { ignoreMissingTypes = value; }
 		}
 
-		private static IDictionary<string, IXmlReader> DefaultReaders()
+		private IDictionary<string, IXmlReader> DefaultReaders()
 		{
 			IDictionary<string, IXmlReader> readers = new Dictionary<string, IXmlReader>();
 			readers["details"] = new DetailXmlReader();
 			readers["detailCollections"] = new DetailCollectionXmlReader();
 			readers["authorizations"] = new AuthorizationXmlReader();
-			readers["attachments"] = new AttachmentXmlReader();
+			readers["attachments"] = new AttachmentXmlReader(explorer);
 			return readers;
 		}
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using N2.Engine;
 using N2.Web.UI.WebControls;
 using N2.Edit.FileSystem;
 using System.Web;
@@ -57,8 +58,8 @@ namespace N2.Details
 			HttpPostedFile postedFile = composite.UploadControl.PostedFile;
 			if (postedFile != null && !string.IsNullOrEmpty(postedFile.FileName))
 			{
-				IFileSystem fs = Engine.Resolve<IFileSystem>();
-				string directoryPath = Engine.Resolve<IDefaultDirectory>().GetDefaultDirectory(item);
+				IFileSystem fs = FileSystem;
+				string directoryPath = DefaultDirectory.GetDefaultDirectory(item);
 				if (!fs.DirectoryExists(directoryPath))
 					fs.CreateDirectory(directoryPath);
 
@@ -80,6 +81,12 @@ namespace N2.Details
 			return false;
 		}
 
+		[Dependency]
+		public IDefaultDirectory DefaultDirectory { get; set; }
+
+		[Dependency]
+		public IFileSystem FileSystem { get; set; }
+
 		public override void UpdateEditor(ContentItem item, Control editor)
 		{
 			SelectorUploadComposite composite = (SelectorUploadComposite)editor;
@@ -94,8 +101,6 @@ namespace N2.Details
 			container.Controls.Add(composite);
 			return composite;
 		}
-
-
 
 		class SelectorUploadComposite : Control, INamingContainer
 		{

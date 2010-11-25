@@ -18,11 +18,12 @@ namespace N2.Definitions
 		private readonly ITypeFinder typeFinder;
 		readonly EngineSection config;
 		private readonly EditableHierarchyBuilder hierarchyBuilder = new EditableHierarchyBuilder();
-		private readonly AttributeExplorer explorer = new AttributeExplorer();
-		
-		public DefinitionBuilder(ITypeFinder typeFinder, EngineSection config)
+		private readonly IAttributeExplorer explorer;
+
+		public DefinitionBuilder(ITypeFinder typeFinder, IAttributeExplorer explorer, EngineSection config)
 		{
 			this.typeFinder = typeFinder;
+			this.explorer = explorer;
 			this.config = config;
 		}
 

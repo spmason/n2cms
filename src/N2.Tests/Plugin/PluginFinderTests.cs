@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using N2.Configuration;
-using N2.Web.UI.WebControls;
+using N2.Engine;
 using NUnit.Framework;
 using N2.Tests.Edit.Items;
 using N2.Edit;
 using System.Security.Principal;
 using N2.Plugin;
+using Rhino.Mocks;
 
 namespace N2.Tests.Plugin
 {
@@ -22,7 +21,7 @@ namespace N2.Tests.Plugin
         {
             base.SetUp();
 
-            finder = new PluginFinder(typeFinder);
+            finder = new PluginFinder(typeFinder, MockRepository.GenerateMock<IDependencyInjector>());
         }
 
         protected override Type[] GetTypes()
@@ -114,7 +113,8 @@ namespace N2.Tests.Plugin
 		public void CanRemovePlugins_ThroughConfiguration()
 		{
 			int initialCount = finder.GetPlugins<NavigationPluginAttribute>().Count();
-			finder = new PluginFinder(typeFinder, CreateEngineSection(new[] { new InterfacePluginElement { Name = "chill" } }));
+			finder = new PluginFinder(typeFinder, MockRepository.GenerateMock<IDependencyInjector>(),
+				CreateEngineSection(new[] { new InterfacePluginElement { Name = "chill" } }));
 			
 			IEnumerable<NavigationPluginAttribute> plugins = finder.GetPlugins<NavigationPluginAttribute>();
 			

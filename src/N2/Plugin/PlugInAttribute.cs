@@ -25,8 +25,6 @@ namespace N2.Plugin
 			InitializerType = initializerType;
 		} 
 
-
-
 		/// <summary>Gets or sets the title of the plugin marked by this attribute.</summary>
 		public string Title { get; set; }
 

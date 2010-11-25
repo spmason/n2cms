@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using N2.Edit;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -9,47 +7,50 @@ using System.Web.UI.HtmlControls;
 
 namespace N2.Engine.Globalization
 {
-    /// <summary>
-    /// Adds language icons to the right-click menu in the navigation pane.
-    /// </summary>
+	/// <summary>
+	/// Adds language icons to the right-click menu in the navigation pane.
+	/// </summary>
 	public class NavigationTranslationsPluginAttribute : NavigationSeparatorPluginAttribute
-    {
-        public NavigationTranslationsPluginAttribute(string name, int sortOrder)
-            : base(name, sortOrder)
-        {
-        }
+	{
+		public NavigationTranslationsPluginAttribute(string name, int sortOrder)
+			: base(name, sortOrder)
+		{
+		}
 
-        public override Control AddTo(Control container, PluginContext context)
-        {
-            ILanguageGateway gateway = N2.Context.Current.Resolve<ILanguageGateway>();
-            if (!gateway.Enabled)
-                return null;
+		[Dependency]
+		public ILanguageGateway LanguageGateway { get; set; }
 
-            HtmlGenericControl div = new HtmlGenericControl("div");
-            div.Attributes["class"] = "languages";
-            container.Controls.Add(div);
+		public override Control AddTo(Control container, PluginContext context)
+		{
+			ILanguageGateway gateway = LanguageGateway;
+			if (!gateway.Enabled)
+				return null;
 
-            base.AddTo(div, context);
+			HtmlGenericControl div = new HtmlGenericControl("div");
+			div.Attributes["class"] = "languages";
+			container.Controls.Add(div);
 
-            foreach (ILanguage language in gateway.GetAvailableLanguages())
-            {
-                Url url = Url.ToAbsolute("~/N2/Content/Globalization/Translate.aspx");
-                url = url.AppendQuery("language", language.LanguageCode);
-                url = url.AppendQuery("selected={selected}");
+			base.AddTo(div, context);
 
-                HyperLink h = new HyperLink();
-                h.ID = language.LanguageCode.Replace('-', '_').Replace(' ', '_');
-                h.Target = Targets.Preview;
+			foreach (ILanguage language in gateway.GetAvailableLanguages())
+			{
+				Url url = Url.ToAbsolute("~/N2/Content/Globalization/Translate.aspx");
+				url = url.AppendQuery("language", language.LanguageCode);
+				url = url.AppendQuery("selected={selected}");
+
+				HyperLink h = new HyperLink();
+				h.ID = language.LanguageCode.Replace('-', '_').Replace(' ', '_');
+				h.Target = Targets.Preview;
 				h.NavigateUrl = context.Rebase(context.Format(url, true));
-                h.CssClass = "language";
-                h.ToolTip = language.LanguageTitle;
-                h.Text = string.Format("<img src='{0}' alt=''/>", N2.Web.Url.ToAbsolute(language.FlagUrl));
-                div.Controls.Add(h);
+				h.CssClass = "language";
+				h.ToolTip = language.LanguageTitle;
+				h.Text = string.Format("<img src='{0}' alt=''/>", N2.Web.Url.ToAbsolute(language.FlagUrl));
+				div.Controls.Add(h);
 
-                RegisterToolbarUrl(container, h.ClientID, url);
-            }
+				RegisterToolbarUrl(container, h.ClientID, url);
+			}
 
-            return div;
-        }
-    }
+			return div;
+		}
+	}
 }

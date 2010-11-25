@@ -14,11 +14,13 @@ namespace N2.Persistence.Serialization
 	{
 		private readonly IDefinitionManager definitions;
 		private readonly IUrlParser parser;
+    	private IAttributeExplorer explorer;
 
-		public ItemXmlWriter(IDefinitionManager definitions, IUrlParser parser)
+    	public ItemXmlWriter(IDefinitionManager definitions, IUrlParser parser, IAttributeExplorer explorer)
 		{
 			this.definitions = definitions;
-			this.parser = parser;
+    		this.explorer = explorer;
+    		this.parser = parser;
 		}
 
         public virtual void Write(ContentItem item, ExportOptions options, XmlTextWriter writer)
@@ -55,7 +57,7 @@ namespace N2.Persistence.Serialization
 			yield return new ChildXmlWriter();
 			yield return new AuthorizationXmlWriter();
             if ((options & ExportOptions.ExcludeAttachments) == ExportOptions.Default)
-			    yield return new AttachmentXmlWriter();
+			    yield return new AttachmentXmlWriter(explorer);
         }
 
 		protected virtual void WriteDefaultAttributes(ElementWriter itemElement, ContentItem item)

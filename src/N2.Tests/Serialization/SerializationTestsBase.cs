@@ -32,7 +32,7 @@ namespace N2.Tests.Serialization
 			notifier = mocks.Stub<IItemNotifier>();
 			mocks.Replay(notifier);
 
-			definitions = new DefinitionManager(new DefinitionBuilder(finder, new EngineSection()), new N2.Edit.Workflow.StateChanger(), notifier, new EmptyProxyFactory());
+			definitions = new DefinitionManager(new DefinitionBuilder(finder, new FakeAttributeExplorer(), new EngineSection()), new N2.Edit.Workflow.StateChanger(), notifier, new EmptyProxyFactory());
 			
 			parser = mocks.StrictMock<IUrlParser>();
 			Expect.On(parser)
@@ -59,19 +59,19 @@ namespace N2.Tests.Serialization
 
 		protected ItemXmlWriter CreateWriter()
 		{
-			return new ItemXmlWriter(definitions, parser);
+			return new ItemXmlWriter(definitions, parser, new FakeAttributeExplorer());
 		}
 		protected Exporter CreateExporter()
 		{
-			return new Exporter(new ItemXmlWriter(definitions, parser));
+			return new Exporter(new ItemXmlWriter(definitions, parser, new FakeAttributeExplorer()));
 		}
 		protected ItemXmlReader CreateReader()
 		{
-			return new ItemXmlReader(definitions);
+			return new ItemXmlReader(definitions, new FakeAttributeExplorer());
 		}
 		protected Importer CreateImporter()
 		{
-			return new Importer(persister, new ItemXmlReader(definitions));
+			return new Importer(persister, new ItemXmlReader(definitions, new FakeAttributeExplorer()));
 		}
 	}
 }

@@ -1,4 +1,5 @@
 #region License
+
 /* Copyright (C) 2007-2008 Cristian Libardo
  *
  * This is free software; you can redistribute it and/or modify it
@@ -6,34 +7,42 @@
  * published by the Free Software Foundation; either version 2.1 of
  * the License, or (at your option) any later version.
  */
+
 #endregion
 
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System;
 using System.Configuration;
-using System.Web.Configuration;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Security;
+using System.Web.Configuration;
+using System.Web.Hosting;
 using N2.Configuration;
+using N2.Definitions;
 using N2.Engine;
 using N2.Engine.MediumTrust;
+using N2.Integrity;
+using N2.Persistence;
+using N2.Security;
+using N2.Web;
 
 namespace N2
 {
-    /// <summary>
+	/// <summary>
 	/// Provides access to the singleton instance of the N2 CMS engine.
 	/// </summary>
-    public class Context
-    {
+	public static class Context
+	{
 		#region Initialization Methods
-    	/// <summary>Initializes a static instance of the N2 factory.</summary>
+
+		/// <summary>Initializes a static instance of the N2 factory.</summary>
 		/// <param name="forceRecreate">Creates a new factory instance even though the factory has been previously initialized.</param>
 		[MethodImpl(MethodImplOptions.Synchronized)]
 		public static IEngine Initialize(bool forceRecreate)
 		{
 			if (Singleton<IEngine>.Instance == null || forceRecreate)
 			{
-                Debug.WriteLine("Constructing engine " + DateTime.Now);
+				Debug.WriteLine("Constructing engine " + DateTime.Now);
 				Singleton<IEngine>.Instance = CreateEngineInstance();
 				Debug.WriteLine("Initializing engine " + DateTime.Now);
 				Singleton<IEngine>.Instance.Initialize();
@@ -55,45 +64,49 @@ namespace N2
 			Singleton<IEngine>.Instance = engine;
 		}
 
-        private static System.Configuration.Configuration GetConfiguration()
-        {
-            try
-            {
-                return System.Web.Hosting.HostingEnvironment.IsHosted
-                    ? WebConfigurationManager.OpenWebConfiguration("~")
-                    : ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            }
-            catch (Exception ex)
-            {
-                Trace.TraceWarning("Error reading configuration. This has happened when running a web site project in a virtual directory (reason unknown). " + ex);
-                return null;
-            }
-        }
+		private static System.Configuration.Configuration GetConfiguration()
+		{
+			try
+			{
+				return HostingEnvironment.IsHosted
+				       	? WebConfigurationManager.OpenWebConfiguration("~")
+				       	: ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+			}
+			catch (Exception ex)
+			{
+				Trace.TraceWarning(
+					"Error reading configuration. This has happened when running a web site project in a virtual directory (reason unknown). " +
+					ex);
+				return null;
+			}
+		}
 
 		/// <summary>Creates a factory instance and adds a http application injecting facility.</summary>
 		/// <returns>A new factory.</returns>
 		public static IEngine CreateEngineInstance()
 		{
-            try
-            {
+			try
+			{
 				var config = ConfigurationManager.GetSection("n2/engine") as EngineSection;
 				if (config != null && !string.IsNullOrEmpty(config.EngineType))
 				{
 					Type engineType = Type.GetType(config.EngineType);
-					if(engineType == null)
-						throw new ConfigurationErrorsException("The type '" + engineType + "' could not be found. Please check the configuration at /configuration/n2/engine[@engineType] or check for missing assemblies.");
-					if(!typeof(IEngine).IsAssignableFrom(engineType))
-						throw new ConfigurationErrorsException("The type '" + engineType + "' doesn't implement 'N2.Engines.IEngine' and cannot be configured in /configuration/n2/engine[@engineType] for that purpose.");
+					if (engineType == null)
+						throw new ConfigurationErrorsException("The type '" + engineType +
+						                                       "' could not be found. Please check the configuration at /configuration/n2/engine[@engineType] or check for missing assemblies.");
+					if (!typeof (IEngine).IsAssignableFrom(engineType))
+						throw new ConfigurationErrorsException("The type '" + engineType +
+						                                       "' doesn't implement 'N2.Engines.IEngine' and cannot be configured in /configuration/n2/engine[@engineType] for that purpose.");
 					return Activator.CreateInstance(engineType) as IEngine;
 				}
 
 				return new ContentEngine();
-            }
-            catch (SecurityException ex)
-            {
-                Trace.TraceInformation("Caught SecurityException, reverting to MediumTrustEngine. " + ex);
+			}
+			catch (SecurityException ex)
+			{
+				Trace.TraceInformation("Caught SecurityException, reverting to MediumTrustEngine. " + ex);
 				return new ContentEngine(new MediumTrustServiceContainer(), EventBroker.Instance, new ContainerConfigurer());
-            }
+			}
 		}
 
 		#endregion
@@ -114,40 +127,41 @@ namespace N2
 		}
 
 		/// <summary>Gets N2 persistence manager used for database persistence of content.</summary>
-		public static Persistence.IPersister Persister
+		public static IPersister Persister
 		{
 			get { return Current.Persister; }
 		}
 
 		/// <summary>Gets N2 definition manager</summary>
-		public static Definitions.IDefinitionManager Definitions
+		public static IDefinitionManager Definitions
 		{
 			get { return Current.Definitions; }
 		}
-        
+
 		/// <summary>Gets N2 integrity manager </summary>
-		public static Integrity.IIntegrityManager IntegrityManager
-        {
+		public static IIntegrityManager IntegrityManager
+		{
 			get { return Current.IntegrityManager; }
-        }
+		}
 
 		/// <summary>Gets N2 security manager responsible of item access checks.</summary>
-		public static Security.ISecurityManager SecurityManager
+		public static ISecurityManager SecurityManager
 		{
 			get { return Current.SecurityManager; }
 		}
 
 		/// <summary>Gets the url parser responsible of mapping urls to items and back again.</summary>
-		public static Web.IUrlParser UrlParser
+		public static IUrlParser UrlParser
 		{
 			get { return Current.UrlParser; }
 		}
 
-        /// <summary>Gets the current page. This is retrieved by the page querystring.</summary>
-        public static ContentItem CurrentPage
-        {
-            get { return Current.UrlParser.CurrentPage; }
-        }
-        #endregion
+		/// <summary>Gets the current page. This is retrieved by the page querystring.</summary>
+		public static ContentItem CurrentPage
+		{
+			get { return Current.UrlParser.CurrentPage; }
+		}
+
+		#endregion
 	}
 }

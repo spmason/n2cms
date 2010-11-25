@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using N2.Tests.Fakes;
 using NUnit.Framework;
 using N2.Plugin.Scheduling;
 using N2.Plugin;
@@ -39,7 +40,7 @@ namespace N2.Tests.Plugin.Scheduling
             var ctx = mocks.DynamicMock<IWebContext>();
             mocks.Replay(ctx);
 
-            IPluginFinder plugins = new PluginFinder(types);
+            IPluginFinder plugins = new PluginFinder(types, new FakeDependencyInjector());
 
 			AsyncWorker worker = new AsyncWorker();
 			worker.QueueUserWorkItem = delegate(WaitCallback function)

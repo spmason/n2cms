@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Web.UI.WebControls;
 using N2.Configuration;
+using N2.Engine;
 
 namespace N2.Details
 {
@@ -11,9 +12,12 @@ namespace N2.Details
 		{
 		}
 
+		[Dependency]
+		public ConfigurationManagerWrapper Configuration { get; set; }
+
 		protected override System.Web.UI.WebControls.ListItem[] GetListItems()
 		{
-			return Engine.Resolve<ConfigurationManagerWrapper>()
+			return Configuration
 				.GetContentSection<EditSection>("edit").Images.Sizes
 				.OfType<ImageSizeElement>()
 				.Select(ise => new ListItem(GetText(ise), ise.Name))

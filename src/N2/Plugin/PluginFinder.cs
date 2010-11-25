@@ -1,77 +1,88 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using N2.Configuration;
-using N2.Engine;
+using System.Linq;
 using System.Reflection;
 using System.Security.Principal;
+using N2.Configuration;
+using N2.Engine;
 
 namespace N2.Plugin
 {
 	/// <summary>
 	/// Investigates the execution environment to find plugins.
 	/// </summary>
-	[Service(typeof(IPluginFinder))]
-    public class PluginFinder : IPluginFinder
-    {
-        private IList<IPlugin> plugins = null;
-        private readonly ITypeFinder typeFinder;
-		public IEnumerable<InterfacePluginElement> addedPlugins = new InterfacePluginElement[0];
+	[Service(typeof (IPluginFinder))]
+	public class PluginFinder : IPluginFinder
+	{
+		private readonly IList<IPlugin> plugins;
+		private readonly ITypeFinder typeFinder;
+		private readonly IDependencyInjector dependencyInjector;
 		public IEnumerable<InterfacePluginElement> removedPlugins = new InterfacePluginElement[0];
 
-        public PluginFinder(ITypeFinder typeFinder, EngineSection config)
-        {
-        	addedPlugins = config.InterfacePlugins.AllElements;
-        	removedPlugins = config.InterfacePlugins.RemovedElements;
+		public PluginFinder(ITypeFinder typeFinder, IDependencyInjector dependencyInjector, EngineSection config)
+		{
+			removedPlugins = config.InterfacePlugins.RemovedElements;
 			this.typeFinder = typeFinder;
-			this.plugins = FindPlugins();
+			this.dependencyInjector = dependencyInjector;
+			plugins = FindPlugins();
 		}
 
-		public PluginFinder(ITypeFinder typeFinder)
+		public PluginFinder(ITypeFinder typeFinder, IDependencyInjector dependencyInjector)
 		{
 			this.typeFinder = typeFinder;
-			this.plugins = FindPlugins();
+			this.dependencyInjector = dependencyInjector;
+			plugins = FindPlugins();
 		}
 
-    	/// <summary>Gets plugins found in the environment sorted and filtered by the given user.</summary>
-    	/// <typeparam name="T">The type of plugin to get.</typeparam>
-    	/// <param name="user">The user that should be authorized for the plugin.</param>
-    	/// <returns>An enumeration of plugins.</returns>
-    	public IEnumerable<T> GetPlugins<T>(IPrincipal user) where T : class, IPlugin
-        {
-            foreach (T plugin in GetPlugins<T>())
-                if (plugin.IsAuthorized(user))
-                    yield return plugin;
-        }
+		#region IPluginFinder Members
 
-        public IEnumerable<T> GetPlugins<T>() where T : class, IPlugin
-        {
-            foreach (IPlugin plugin in plugins)
-                if (plugin is T)
-                    yield return plugin as T;
-        }
+		/// <summary>Gets plugins found in the environment sorted and filtered by the given user.</summary>
+		/// <typeparam name="T">The type of plugin to get.</typeparam>
+		/// <param name="user">The user that should be authorized for the plugin.</param>
+		/// <returns>An enumeration of plugins.</returns>
+		public IEnumerable<T> GetPlugins<T>(IPrincipal user) where T : class, IPlugin
+		{
+			foreach (T plugin in GetPlugins<T>())
+				if (plugin.IsAuthorized(user))
+					yield return plugin;
+		}
 
-        /// <summary>Finds and sorts plugin defined in known assemblies.</summary>
-        /// <returns>A sorted list of plugins.</returns>
-        protected virtual IList<IPlugin> FindPlugins()
-        {
-            List<IPlugin> foundPlugins = new List<IPlugin>();
-            foreach (Assembly assembly in typeFinder.GetAssemblies())
-            {
-                foreach (IPlugin plugin in FindPluginsIn(assembly))
-                {
-                    if (plugin.Name == null)
-                        throw new N2Exception("A plugin in the assembly '{0}' has no name. The plugin is likely defined on the assembly ([assembly:...]). Try assigning the plugin a unique name and recompiling.", assembly.FullName);
-                	if (foundPlugins.Contains(plugin))
-                		throw new N2Exception("A plugin of the type '{0}' named '{1}' is already defined, assembly: {2}", plugin.GetType().FullName, plugin.Name, assembly.FullName);
+		public IEnumerable<T> GetPlugins<T>() where T : class, IPlugin
+		{
+			return plugins.OfType<T>().Select(dummy =>
+			                                  	{
+			                                  		dependencyInjector.InjectDependents(dummy);
+			                                  		return dummy;
+			                                  	});
+		}
 
-					if(!IsRemoved(plugin))
-                		foundPlugins.Add(plugin);
-                }
-            }
-            foundPlugins.Sort();
-            return foundPlugins;
-        }
+		#endregion
+
+		/// <summary>Finds and sorts plugin defined in known assemblies.</summary>
+		/// <param name="dependencyInjector"></param>
+		/// <returns>A sorted list of plugins.</returns>
+		protected virtual IList<IPlugin> FindPlugins()
+		{
+			var foundPlugins = new List<IPlugin>();
+			foreach (Assembly assembly in typeFinder.GetAssemblies())
+			{
+				foreach (IPlugin plugin in FindPluginsIn(assembly))
+				{
+					if (plugin.Name == null)
+						throw new N2Exception(
+							"A plugin in the assembly '{0}' has no name. The plugin is likely defined on the assembly ([assembly:...]). Try assigning the plugin a unique name and recompiling.",
+							assembly.FullName);
+					if (foundPlugins.Contains(plugin))
+						throw new N2Exception("A plugin of the type '{0}' named '{1}' is already defined, assembly: {2}",
+						                      plugin.GetType().FullName, plugin.Name, assembly.FullName);
+
+					if (!IsRemoved(plugin))
+						foundPlugins.Add(plugin);
+				}
+			}
+			foundPlugins.Sort();
+			return foundPlugins;
+		}
 
 		private bool IsRemoved(IPlugin plugin)
 		{
@@ -83,23 +94,23 @@ namespace N2.Plugin
 			return false;
 		}
 
-        private IEnumerable<IPlugin> FindPluginsIn(Assembly a)
-        {
-            foreach (IPlugin attribute in a.GetCustomAttributes(typeof(IPlugin), false))
-            {
-                yield return attribute;
-            }
-            foreach (Type t in a.GetTypes())
-            {
-                foreach (IPlugin attribute in t.GetCustomAttributes(typeof(IPlugin), false))
-                {
-                    if (attribute.Name == null)
-                        attribute.Name = t.Name;
-                    attribute.Decorates = t;
+		private IEnumerable<IPlugin> FindPluginsIn(Assembly a)
+		{
+			foreach (IPlugin attribute in a.GetCustomAttributes(typeof (IPlugin), false))
+			{
+				yield return attribute;
+			}
+			foreach (Type t in a.GetTypes())
+			{
+				foreach (IPlugin attribute in t.GetCustomAttributes(typeof (IPlugin), false))
+				{
+					if (attribute.Name == null)
+						attribute.Name = t.Name;
+					attribute.Decorates = t;
 
-                    yield return attribute;
-                }
-            }
-        }
-    }
+					yield return attribute;
+				}
+			}
+		}
+	}
 }

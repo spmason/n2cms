@@ -39,7 +39,7 @@ namespace N2.Tests.Edit
 		public override void SetUp()
 		{
 			base.SetUp();
-			DefinitionBuilder builder = new DefinitionBuilder(typeFinder, new EngineSection());
+			DefinitionBuilder builder = new DefinitionBuilder(typeFinder, new FakeAttributeExplorer(), new EngineSection());
 			IItemNotifier notifier = mocks.DynamicMock<IItemNotifier>();
 			mocks.Replay(notifier);
             var changer = new N2.Edit.Workflow.StateChanger();

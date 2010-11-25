@@ -33,7 +33,6 @@ namespace N2.Details
 		private string helpTitle;
 		private string helpText;
 		private string localizationClassKey = "Editables";
-        private IEngine engine = null;
 
 		#region Properties
 
@@ -86,13 +85,6 @@ namespace N2.Details
 			set { validationText = value; }
 		}
 
-        /// <summary>Gets the current Content Engine.</summary>
-        /// <remarks>Note that a setter is made available for testing purposes only and there shouldn't be any need to use it. It's also important not to call this property from the constructor.</remarks>
-        protected virtual IEngine Engine
-        {
-            get { return engine ?? N2.Context.Current; }
-            set { engine = value; }
-        }
 		#endregion
 
 		#region Constructors

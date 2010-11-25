@@ -1,7 +1,6 @@
 using System;
 using System.Security.Principal;
 using System.Web.UI;
-using N2.Engine;
 using N2.Plugin;
 using System.Web.UI.WebControls;
 
@@ -18,7 +17,6 @@ namespace N2.Edit
         private string name;
         private int sortOrder = int.MaxValue;
         private Type decorates;
-		private IEngine engine;
 
         #region Public Properties
 
@@ -54,13 +52,6 @@ namespace N2.Edit
 
 		/// <summary>Url to the anchor's image icon.</summary>
 		public string IconUrl { get; set; }
-
-		/// <summary>The current N2 context.</summary>
-		protected internal IEngine Engine
-		{
-			get { return engine ?? (engine = N2.Context.Current); }
-			set { engine = value; }
-		}
 
 		#endregion
 

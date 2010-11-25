@@ -162,10 +162,13 @@
     <Compile Include="Edit\WhileDealingWithVersions.cs" />
     <Compile Include="Edit\WhileEditingContentData.cs" />
     <Compile Include="Edit\WhileNavigatingToTheEditPage.cs" />
+    <Compile Include="Engine\DependencyInjectorTests.cs" />
     <Compile Include="Engine\Items\AdapterIInterfaced.cs" />
     <Compile Include="Engine\Items\ItemAC.cs" />
     <Compile Include="Engine\ServiceContainerTests.cs" />
     <Compile Include="Engine\Services\Services.cs" />
+    <Compile Include="Fakes\FakeAttributeExplorer.cs" />
+    <Compile Include="Fakes\FakeDependencyInjector.cs" />
     <Compile Include="Fakes\FakeFileSystem2.cs" />
     <Compile Include="Fakes\FakeItemFinder.cs" />
     <Compile Include="Fakes\FakeVersionManager.cs" />

@@ -21,6 +21,7 @@
 using System;
 using System.Web.UI.WebControls;
 using System.Web.UI;
+using N2.Engine;
 
 namespace N2.Details
 {
@@ -102,6 +103,9 @@ namespace N2.Details
 			get { return maxLength; }
 			set { maxLength = value; }
 		}
+
+		[Dependency]
+		public IEngine Engine { get; set; }
 
 	    #endregion
 

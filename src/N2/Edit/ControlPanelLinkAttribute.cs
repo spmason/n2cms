@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Web.UI;
+using N2.Engine;
 using N2.Web;
 using N2.Web.UI.WebControls;
 using System.Web.UI.WebControls;
@@ -48,6 +49,9 @@ namespace N2.Edit
 
 		/// <summary>Used for translating the plugin's texts from a global resource.</summary>
 		public string GlobalResourceClassName { get; set; }
+
+		[Dependency]
+		public IEngine Engine { get; set; }
 
 		public override Control AddTo(Control container, PluginContext context)
 		{

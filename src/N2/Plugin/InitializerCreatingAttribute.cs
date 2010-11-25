@@ -8,13 +8,12 @@ namespace N2.Plugin
 	/// </summary>
 	public abstract class InitializerCreatingAttribute : Attribute, IPluginDefinition
 	{
-		private Type initializerType = null;
-
-		public Type InitializerType
+		protected InitializerCreatingAttribute()
 		{
-			get { return initializerType; }
-			set { initializerType = value; }
+			InitializerType = null;
 		}
+
+		public Type InitializerType { get; set; }
 
 		public virtual void Initialize(Engine.IEngine engine)
 		{
@@ -28,7 +27,6 @@ namespace N2.Plugin
 		protected virtual IPluginInitializer CreateInitializer()
 		{
 			return (IPluginInitializer)Activator.CreateInstance(InitializerType);
-		} 
-
+		}
 	}
 }

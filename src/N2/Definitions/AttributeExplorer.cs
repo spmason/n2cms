@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
-using System.Text;
 using N2.Details;
-using N2.Security;
 using N2.Engine;
+using N2.Security;
 
 namespace N2.Definitions
 {
@@ -13,9 +13,18 @@ namespace N2.Definitions
 	/// class must have their name attribute set, and attributes defined on a
 	/// property their name set to the property's name.
 	/// </summary>
-	[Service]
-	public class AttributeExplorer
+	[Service(typeof (IAttributeExplorer))]
+	public class AttributeExplorer : IAttributeExplorer
 	{
+		private readonly IDependencyInjector dependencyInjector;
+
+		public AttributeExplorer(IDependencyInjector dependencyInjector)
+		{
+			this.dependencyInjector = dependencyInjector;
+		}
+
+		#region IAttributeExplorer Members
+
 		/// <summary>
 		/// Finds attributes on a type.
 		/// </summary>
@@ -24,7 +33,7 @@ namespace N2.Definitions
 		/// <returns>A list of attributes defined on the class or it's properties.</returns>
 		public IList<T> Find<T>(Type typeToExplore) where T : IUniquelyNamed
 		{
-			List<T> attributes = new List<T>();
+			var attributes = new List<T>();
 
 			AddEditablesDefinedOnProperties(typeToExplore, attributes);
 			AddEditablesDefinedOnClass(typeToExplore, attributes);
@@ -32,41 +41,52 @@ namespace N2.Definitions
 			if (attributes.Count > 1 && (attributes[0] is IComparable || attributes[0] is IComparable<T>))
 				attributes.Sort();
 
-			return attributes;
+			return attributes.Select(a =>
+			                         	{
+			                         		dependencyInjector.InjectDependents(a);
+			                         		return a;
+			                         	})
+				.ToList();
 		}
 
-        /// <summary>
-        /// Maps properties on the class and it's properties to a dictionary.
-        /// </summary>
+		/// <summary>
+		/// Maps properties on the class and it's properties to a dictionary.
+		/// </summary>
 		/// <typeparam name="T">The type of attribute to find.</typeparam>
 		/// <param name="typeToExplore">The type to explore.</param>
-        /// <returns>A dictionary of atributes.</returns>
+		/// <returns>A dictionary of atributes.</returns>
 		public IDictionary<string, T> Map<T>(Type typeToExplore) where T : IUniquelyNamed
 		{
-			IList<T> attributes = Find<T>(typeToExplore);
-			Dictionary<string, T> map = new Dictionary<string, T>();
-			foreach(T a in attributes)
+			var attributes = Find<T>(typeToExplore);
+			var map = new Dictionary<string, T>();
+			foreach (T a in attributes)
 			{
 				map[a.Name] = a;
 			}
 			return map;
 		}
 
+		#endregion
+
 		#region Helpers
-		private static void AddEditablesDefinedOnProperties<T>(Type exploredType, ICollection<T> attributes) where T : IUniquelyNamed
+
+		private static void AddEditablesDefinedOnProperties<T>(Type exploredType, ICollection<T> attributes)
+			where T : IUniquelyNamed
 		{
 			foreach (PropertyInfo propertyOnItem in exploredType.GetProperties())
 			{
-				foreach (T editableOnProperty in propertyOnItem.GetCustomAttributes(typeof(T), false))
+				foreach (T editableOnProperty in propertyOnItem.GetCustomAttributes(typeof (T), false))
 				{
 					if (!attributes.Contains(editableOnProperty))
 					{
 						editableOnProperty.Name = propertyOnItem.Name;
 						if (editableOnProperty is ISecurable)
 						{
-							foreach (DetailAuthorizedRolesAttribute rolesAttribute in propertyOnItem.GetCustomAttributes(typeof (DetailAuthorizedRolesAttribute), false))
+							foreach (
+								DetailAuthorizedRolesAttribute rolesAttribute in
+									propertyOnItem.GetCustomAttributes(typeof (DetailAuthorizedRolesAttribute), false))
 							{
-								ISecurable s = editableOnProperty as ISecurable;
+								var s = editableOnProperty as ISecurable;
 								s.AuthorizedRoles = rolesAttribute.Roles;
 							}
 						}
@@ -76,7 +96,8 @@ namespace N2.Definitions
 			}
 		}
 
-		private static void AddEditablesDefinedOnClass<T>(Type exploredType, ICollection<T> attributes) where T : IUniquelyNamed
+		private static void AddEditablesDefinedOnClass<T>(Type exploredType, ICollection<T> attributes)
+			where T : IUniquelyNamed
 		{
 			foreach (Type t in EnumerateTypeAncestralHierarchy(exploredType))
 			{
@@ -98,12 +119,13 @@ namespace N2.Definitions
 
 		private static IEnumerable<Type> EnumerateTypeAncestralHierarchy(Type type)
 		{
-			while (type != typeof(object))
+			while (type != typeof (object))
 			{
 				yield return type;
 				type = type.BaseType;
 			}
 		}
+
 		#endregion
 	}
 }
