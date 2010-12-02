@@ -61,13 +61,12 @@ namespace N2.Templates.Mvc.Services
 
 			private ViewContext CreateViewContext(RouteData rd, HtmlTextWriter writer)
 			{
-				var vc = new ViewContext(
-					new ControllerContext(
-						new RequestContext(
-							new HttpContextWrapper(HttpContext.Current),
-							rd),
-						new TempController()),
-					new WebFormView(this.Page.Request.AppRelativeCurrentExecutionFilePath),
+				var controllerContext = new ControllerContext(new RequestContext(
+				                                              	new HttpContextWrapper(HttpContext.Current),
+				                                              	rd),
+				                                              new TempController());
+				var vc = new ViewContext(controllerContext,
+					new WebFormView(controllerContext, this.Page.Request.AppRelativeCurrentExecutionFilePath),
 					new ViewDataDictionary(),
 					new TempDataDictionary(),
 					writer);

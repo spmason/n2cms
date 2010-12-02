@@ -45,3 +45,10 @@ stylecop.*
 
 # Git files to ignore
 *.orig
+
+# Specific locations
+Output/
+examples/MinimalCSharp/wwwroot/N2/
+examples/MinimalVisualBasic/wwwroot/N2/
+examples/Mvc/wwwroot/N2/
+src/wwwroot/N2/

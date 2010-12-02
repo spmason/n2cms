@@ -18,4 +18,4 @@ using System.Security;
 [assembly: Guid("485f74c4-6f2a-41b5-93cc-f5f64f84d037")]
 
 [assembly: CLSCompliant(true)]
-[assembly: AllowPartiallyTrustedCallers]
+//[assembly: AllowPartiallyTrustedCallers]

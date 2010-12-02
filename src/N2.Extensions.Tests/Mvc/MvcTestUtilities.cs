@@ -18,9 +18,10 @@ namespace N2.Extensions.Tests.Mvc
         public static ViewPage<T> CreateViewPage<T>(T model)
             where T : ContentItem
         {
+        	var controllerContext = new ControllerContext();
             var page = new ViewPage<T>();
             page.ViewData = new ViewDataDictionary<T>(model);
-            page.ViewContext = new ViewContext(new ControllerContext(), new WebFormView("~/page.aspx"), page.ViewData, new TempDataDictionary(), new StringWriter());
+            page.ViewContext = new ViewContext(controllerContext, new WebFormView(controllerContext, "~/page.aspx"), page.ViewData, new TempDataDictionary(), new StringWriter());
 			page.ViewContext.RouteData.DataTokens[ContentRoute.ContentItemKey] = model;
 			page.ViewContext.RouteData.DataTokens[ContentRoute.ContentEngineKey] = StubEngine();
 			return page;
@@ -43,7 +44,7 @@ namespace N2.Extensions.Tests.Mvc
 			controllerContext.RequestContext.RouteData.DataTokens[ContentRoute.ContentItemKey] = item;
             controllerContext.Controller.ControllerContext = controllerContext;
 
-			page.ViewContext = new ViewContext(controllerContext, new WebFormView("~/page.aspx"), page.ViewData, new TempDataDictionary(), new StringWriter())
+			page.ViewContext = new ViewContext(controllerContext, new WebFormView(controllerContext, "~/page.aspx"), page.ViewData, new TempDataDictionary(), new StringWriter())
 			{
 				HttpContext = controllerContext.HttpContext
 			};
