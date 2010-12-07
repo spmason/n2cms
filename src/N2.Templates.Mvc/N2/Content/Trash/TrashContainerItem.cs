@@ -10,8 +10,8 @@ namespace N2.Edit.Trash
 	[PageDefinition("Trash", 
 		Name = "TrashContainerItem", 
 		InstallerVisibility = InstallerHint.NeverRootOrStartPage,
-        IconUrl = "~/N2/Resources/icons/bin.png", 
-		TemplateUrl = "~/N2/Content/Trash/Default.aspx")]
+        IconUrl = "{ManagementUrl}/Resources/icons/bin.png", 
+		TemplateUrl = "{ManagementUrl}/Content/Trash/Default.aspx")]
 	[AllowedChildren(typeof(ContentItem))]
 	[ItemAuthorizedRoles(Roles = new string[0])]
     [NotThrowable]
@@ -38,24 +38,14 @@ namespace N2.Edit.Trash
 			set { SetDetail("PurgeInterval", value, TrashPurgeInterval.Monthly); }
 		}
 
-		public override string Url
-		{
-			get
-			{
-			    var url = new Url(Context.Current.EditManager.GetEditInterfaceUrl());
-				
-			    return url.AppendSegment("Trash/Default.aspx").AppendQuery( PathData.PageQueryKey, ID);
-			}
-		}
-
 		public override string IconUrl
 		{
 			get
 			{
-				return VirtualPathUtility.ToAbsolute(
-					this.Children.Count > 0 ?
-                        "~/N2/Resources/icons/bin.png" :
-                        "~/N2/Resources/icons/bin_closed.png"
+				return Context.Current.ManagementPaths.ResolveResourceUrl(
+					this.Children.Count > 0
+						? "{ManagementUrl}/Resources/icons/bin.png"
+						: "{ManagementUrl}/Resources/icons/bin_closed.png"
 					);
 			}
 		}

@@ -135,7 +135,7 @@ namespace N2.Tests.Definitions
 		public void Definition_UsesDefinedIconUrl_NotRuntimeIconUrl()
 		{
 			ItemDefinition definition = engine.Definitions.GetDefinition(typeof (ItemWithDetails));
-			Assert.AreEqual("~/N2/Resources/icons/page.png", definition.IconUrl);
+			Assert.AreEqual("/N2/Resources/icons/page.png", definition.IconUrl);
 		}
 
 		[Test]
@@ -152,14 +152,6 @@ namespace N2.Tests.Definitions
 			ContentItem item2 = engine.Definitions.CreateInstance(typeof(ItemInZone1Or2), item1);
 			Assert.AreEqual(typeof (ItemWithDetails), item1.GetContentType());
 			Assert.AreEqual(typeof (ItemInZone1Or2), item2.GetContentType());
-		}
-
-		[Test]
-		public void CreateInstanceWithUnAllowedParentGivesException()
-		{
-			ContentItem item = engine.Definitions.CreateInstance(typeof (ItemWithDetails), null);
-			
-			Assert.Throws<NotAllowedParentException>(() => engine.Definitions.CreateInstance(typeof (SideshowItem), item));
 		}
 
 		[Test]

@@ -184,7 +184,7 @@ namespace N2.Web
 					if(!string.IsNullOrEmpty(Argument))
 						url = url.SetQueryParameter("argument", Argument);
 
-					return url;
+					return url.ResolveTokens();
 				}
 
 				for (ContentItem ancestor = CurrentItem.Parent; ancestor != null; ancestor = ancestor.Parent)

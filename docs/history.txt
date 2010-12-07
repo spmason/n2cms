@@ -1,4 +1,10 @@
-﻿- Fixed ThreadId=235940: Import Doesn't Import "Text" (N2 RC1)
+﻿- Permission inheritance for other permissions than read (ThreadId=237118)
+- Increased the name length to 250 (ThreadId=236565)
+- Applied junglefreak's solution to breadcrumb exception (ThreadId=235958)
+- Fixed error in mvc login part (ThreadId=234388)
+- Fixed issue with non-authorized access to create/edit/delete in wf templates
+- Merged Steve Mason's renamable "N2" path
+- Fixed ThreadId=235940: Import Doesn't Import "Text" (N2 RC1)
 - Fixed #29577: Cannot empty trash, when a deleted item is linked from another item
 - Fixed MVC areas inside N2 doesn't work (ThreadId=235361)
 - Removed unecessary IMailSender from template projects (breaking change)
@@ -7,6 +13,7 @@
 - Fixed #29425: Empty <title> after setting then clearing alternative title
 - Fixed #29380: Template's Image.ashx should inherit from ImageResizeHandler 
 - Applied #29376: A Graphics object cannot be created from an image that has an indexed pixel format. 
+- Updated NHibernate to 3.0 CR1
 - Restored upload from file selector (ThreadId=224359)
 - Added type validation to item selector control 
 - Fixed exception when removing news container (ThreadId=234388)

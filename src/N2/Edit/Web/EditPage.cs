@@ -6,6 +6,8 @@ using System.Resources;
 using N2.Resources;
 using N2.Security;
 using N2.Web;
+using N2.Engine;
+using System.Security.Principal;
 
 namespace N2.Edit.Web
 {
@@ -13,14 +15,23 @@ namespace N2.Edit.Web
 	/// Base class for edit mode pages. Provides functionality to parse 
 	/// selected item and refresh navigation.
 	/// </summary>
-    public class EditPage : Page
+    public class EditPage : Page, IProvider<IEngine>
     {
 		protected override void OnPreInit(EventArgs e)
 		{
 			base.OnPreInit(e);
 			SetupAspNetTheming();
+			Authorize(User);
 		}
-		
+
+		/// <summary>Determines whether the current page can be displayed.</summary>
+		/// <param name="user">The user to authorize.</param>
+		/// <returns>True if the user is authorized.</returns>
+		protected virtual void Authorize(IPrincipal user)
+		{
+			Engine.Resolve<ISecurityEnforcer>().AuthorizeRequest(user, Selection.SelectedItem, Permission.Write);
+		}
+	
 		protected override void OnInit(EventArgs e)
 		{
 			EnsureAuthorization(Permission.Read);
@@ -40,7 +51,7 @@ namespace N2.Edit.Web
             if (themeCookie != null && !string.IsNullOrEmpty(themeCookie.Value))
                 theme = themeCookie.Value;
 
-            Register.StyleSheet(this, "~/N2/Resources/Css/themes/" + theme);
+			Register.StyleSheet(this, Engine.ManagementPaths.ResolveResourceUrl("{ManagementUrl}/Resources/Css/themes/" + theme));
         }
 
 		private void SetupAspNetTheming()
@@ -116,12 +127,22 @@ namespace N2.Edit.Web
 		/// <param name="permission">The permission to check.</param>
 		protected bool IsAuthorized(Permission permission)
 		{
-            return IsAuthorized(Selection.SelectedItem, permission);
+			return IsAuthorized(Selection.SelectedItem, permission);
+		}
+
+		protected new string ResolveUrl(string url)
+		{
+			return Engine.ManagementPaths.ResolveResourceUrl(url);
+		}
+
+		protected string ResolveUrl(object url)
+		{
+			return ResolveUrl(url as string);
 		}
 
 		protected string MapCssUrl(string cssFileName)
 		{
-			return Url.ToAbsolute(N2.Context.Current.EditManager.GetManagementInterfaceUrl() + "Resources/Css/" + cssFileName);
+			return Engine.ManagementPaths.ResolveResourceUrl("{ManagementUrl}/Resources/Css/" + cssFileName);
 		}
 
     	#region Refresh Methods
@@ -131,7 +152,7 @@ namespace N2.Edit.Web
 
         protected virtual void Refresh(ContentItem item)
         {
-            string previewUrl = Engine.EditManager.GetEditInterfaceUrl(Selection.SelectedItem);
+            string previewUrl = Engine.ManagementPaths.GetEditInterfaceUrl(Selection.SelectedItem);
             string script = string.Format("window.top.location = '{0}';", previewUrl);
 
             ClientScript.RegisterClientScriptBlock(
@@ -143,7 +164,7 @@ namespace N2.Edit.Web
         protected virtual void Refresh(ContentItem item, string previewUrl)
         {
             string script = string.Format(RefreshBothFormat,
-                Url.ToAbsolute("~/N2/Content/Default.aspx"), // 0
+                Engine.ManagementPaths.GetEditInterfaceUrl(), // 0
                 GetNavigationUrl(item), // 1
                 Url.ToAbsolute(previewUrl), // 2
                 item.ID, // 3
@@ -180,7 +201,7 @@ namespace N2.Edit.Web
 				format = RefreshNavigationFormat;
 
 			string script = string.Format(format,
-				Url.ToAbsolute("~/N2/Content/Default.aspx"), // 0
+				Engine.ManagementPaths.GetEditInterfaceUrl(), // 0
 				GetNavigationUrl(item), // 1
 				GetPreviewUrl(item), // 2
 				item.ID, // 3
@@ -191,7 +212,7 @@ namespace N2.Edit.Web
 
 		protected string GetNavigationUrl(ContentItem selectedItem)
 		{
-			return Engine.EditManager.GetNavigationUrl(selectedItem);
+			return Engine.ManagementPaths.GetNavigationUrl(selectedItem);
 		}
 
 		protected virtual string GetPreviewUrl(ContentItem selectedItem)
@@ -326,6 +347,20 @@ namespace N2.Edit.Web
 		protected ContentItem RootNode
 		{
 			get { return Engine.Resolve<Navigator>().Navigate(Path); }
+		}
+
+		#endregion
+
+		#region IProvider<IEngine> Members
+
+		IEngine IProvider<IEngine>.Get()
+		{
+			return Engine;
+		}
+
+		System.Collections.Generic.IEnumerable<IEngine> IProvider<IEngine>.GetAll()
+		{
+			return Engine.Container.ResolveAll<IEngine>();
 		}
 
 		#endregion

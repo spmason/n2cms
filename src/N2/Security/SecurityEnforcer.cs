@@ -18,16 +18,18 @@ namespace N2.Security
 		/// </summary>
 		public event EventHandler<CancellableItemEventArgs> AuthorizationFailed;
 
-		private Persistence.IPersister persister;
-		private ISecurityManager security;
-		private Web.IUrlParser urlParser;
-		private Web.IWebContext webContext;
+		private readonly Persistence.IPersister persister;
+		private readonly ISecurityManager security;
+		private readonly Definitions.IDefinitionManager definitions;
+		private readonly Web.IUrlParser urlParser;
+		private readonly Web.IWebContext webContext;
 
-		public SecurityEnforcer(Persistence.IPersister persister, ISecurityManager security, Web.IUrlParser urlParser, Web.IWebContext webContext)
+		public SecurityEnforcer(Persistence.IPersister persister, ISecurityManager security, Definitions.IDefinitionManager definitions, Web.IUrlParser urlParser, Web.IWebContext webContext)
 		{
 			this.webContext = webContext;
 			this.persister = persister;
 			this.security = security;
+			this.definitions = definitions;
 			this.urlParser = urlParser;
 		}
 
@@ -55,24 +57,33 @@ namespace N2.Security
 			if (security.Enabled && security.ScopeEnabled)
 				OnItemCopying(e.AffectedItem, e.Destination);
 		}
+
+		void ItemCreatedEventHandler(object sender, ItemEventArgs e)
+		{
+			var item = e.AffectedItem;
+			var parent = e.AffectedItem.Parent;
+			if (parent == null)
+				return;
+
+			security.CopyPermissions(parent, item);
+		}
 		#endregion
 
 		#region Methods
 
 		/// <summary>Checks that the current user is authorized to access the current item.</summary>
-		public virtual void AuthorizeRequest()
+		public virtual void AuthorizeRequest(IPrincipal user, ContentItem page, Permission requiredPermission)
 		{
-			ContentItem item = webContext.CurrentPage;
-			if (item != null)
+			if (page != null)
 			{
-				if (item != null && !security.IsAuthorized(item, webContext.User))
+				if (page != null && !security.IsAuthorized(user, page, requiredPermission))
 				{
-					CancellableItemEventArgs args = new CancellableItemEventArgs(item);
+					CancellableItemEventArgs args = new CancellableItemEventArgs(page);
 					if (AuthorizationFailed != null)
 						AuthorizationFailed.Invoke(this, args);
 
 					if (!args.Cancel)
-						throw new PermissionDeniedException(item, webContext.User);
+						throw new PermissionDeniedException(page, user);
 				}
 			}
 		}
@@ -122,18 +133,20 @@ namespace N2.Security
 
 		public virtual void Start()
 		{
-			persister.ItemSaving += new EventHandler<CancellableItemEventArgs>(ItemSavingEventHandler);
-			persister.ItemCopying += new EventHandler<CancellableDestinationEventArgs>(ItemCopyingEvenHandler);
-			persister.ItemDeleting += new EventHandler<CancellableItemEventArgs>(ItemDeletingEvenHandler);
-			persister.ItemMoving += new EventHandler<CancellableDestinationEventArgs>(ItemMovingEvenHandler);
+			persister.ItemSaving += ItemSavingEventHandler;
+			persister.ItemCopying += ItemCopyingEvenHandler;
+			persister.ItemDeleting += ItemDeletingEvenHandler;
+			persister.ItemMoving +=	ItemMovingEvenHandler;
+			definitions.ItemCreated += ItemCreatedEventHandler;
 		}
 
 		public virtual void Stop()
 		{
-			persister.ItemSaving -= new EventHandler<CancellableItemEventArgs>(ItemSavingEventHandler);
-			persister.ItemCopying -= new EventHandler<CancellableDestinationEventArgs>(ItemCopyingEvenHandler);
-			persister.ItemDeleting -= new EventHandler<CancellableItemEventArgs>(ItemDeletingEvenHandler);
-			persister.ItemMoving -= new EventHandler<CancellableDestinationEventArgs>(ItemMovingEvenHandler);
+			persister.ItemSaving -= ItemSavingEventHandler;
+			persister.ItemCopying -= ItemCopyingEvenHandler;
+			persister.ItemDeleting -= ItemDeletingEvenHandler;
+			persister.ItemMoving -= ItemMovingEvenHandler;
+			definitions.ItemCreated -= ItemCreatedEventHandler;
 		}
 
 		#endregion

@@ -87,15 +87,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="NHibernate, Version=3.0.0.2001, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
+    <Reference Include="NHibernate, Version=3.0.0.3001, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="NHibernate.ByteCode.Castle, Version=3.0.0.2001, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
+    <Reference Include="NHibernate.ByteCode.Castle, Version=3.0.0.3001, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\NHibernate.ByteCode.Castle.dll</HintPath>
     </Reference>
-    <Reference Include="NHibernate.Caches.SysCache2, Version=3.0.0.2000, Culture=neutral, PublicKeyToken=6876f2ea66c9f443, processorArchitecture=MSIL">
+    <Reference Include="NHibernate.Caches.SysCache2, Version=3.0.0.3000, Culture=neutral, PublicKeyToken=6876f2ea66c9f443, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\NHibernate.Caches.SysCache2.dll</HintPath>
     </Reference>
@@ -141,6 +141,8 @@
     <Compile Include="Details\StringDetail.cs" />
     <Compile Include="Details\DateTimeDetail.cs" />
     <Compile Include="Details\ObjectDetail.cs" />
+    <Compile Include="Edit\EditUrlManager.cs" />
+    <Compile Include="Edit\IEditUrlManager.cs" />
     <Compile Include="Edit\Installation\AppPathRebaser.cs" />
     <Compile Include="Edit\Installation\RebaseInfo.cs" />
     <Compile Include="Edit\ToolbarArea.cs" />
