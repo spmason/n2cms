@@ -1,4 +1,7 @@
-﻿- Permission inheritance for other permissions than read (ThreadId=237118)
+﻿- Tinymce config objects (ThreadId=237328)
+- Added [DisplayableHeading]
+- Moved all types from N2.Security to N2.Management
+- Permission inheritance for other permissions than read (ThreadId=237118)
 - Increased the name length to 250 (ThreadId=236565)
 - Applied junglefreak's solution to breadcrumb exception (ThreadId=235958)
 - Fixed error in mvc login part (ThreadId=234388)
