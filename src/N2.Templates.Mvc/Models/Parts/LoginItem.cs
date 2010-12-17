@@ -9,7 +9,7 @@ namespace N2.Templates.Mvc.Models.Parts
 	[WithEditableTitle("Title", 10)]
 	public class LoginItem : PartBase
 	{
-		[Displayable(typeof (H4), "Text")]
+		[DisplayableHeading(4)]
 		public override string Title
 		{
 			get { return base.Title; }
@@ -33,7 +33,7 @@ namespace N2.Templates.Mvc.Models.Parts
 		[EditableTextBox("Logout Text", 120)]
 		public virtual string LogoutText
 		{
-			get { return (string) (GetDetail("LogoutText") ?? string.Empty); }
+			get { return GetDetail("LogoutText", "Logout"); }
 			set { SetDetail("LogoutText", value, string.Empty); }
 		}
 

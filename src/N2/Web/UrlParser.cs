@@ -7,7 +7,7 @@ using N2.Configuration;
 namespace N2.Web
 {
 	/// <summary>
-	/// Creates unique urls for items and finds the corresponding item from
+	/// Creates unique managementUrls for items and finds the corresponding item from
 	/// such an url.
 	/// </summary>
 	public class UrlParser : IUrlParser
@@ -52,7 +52,7 @@ namespace N2.Web
             set { defaultDocument = value; }
         }
 
-		public PathData ResolvePath(string url)
+		public PathData ResolvePath(Url url)
 		{
 			Url requestedUrl = url;
 			ContentItem item = TryLoadingFromQueryString(requestedUrl, PathData.ItemQueryKey);
@@ -65,7 +65,8 @@ namespace N2.Web
 					.UpdateParameters(requestedUrl.GetQueries());
 
 				var directData = UseItemIfAvailable(item, directPath);
-				directData.IsRewritable = false; // do not rewrite requests with page in query string since this probably is an already rewritten url
+				// check whether to rewrite requests with page in query string since this might be already rewritten
+				directData.IsRewritable &= !string.Equals(url.ApplicationRelativePath, directData.TemplateUrl, StringComparison.InvariantCultureIgnoreCase);
 				return directData;
 			}
 

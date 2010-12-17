@@ -76,7 +76,7 @@ namespace N2.Edit.Navigation
 			{
 				var filter = Engine.EditManager.GetEditorFilter(Page.User);
 				siteTreeView.Filter = filter;
-				siteTreeView.RootNode = RootNode;
+				siteTreeView.RootNode = Engine.Resolve<Navigator>().Navigate(Request["root"] ?? "/");
 				siteTreeView.SelectedItem = selected;
 			}
 			
@@ -126,7 +126,7 @@ namespace N2.Edit.Navigation
 
 			HierarchyNode<ContentItem> node = null;
 			foreach (DirectoryData dd in Engine.Resolve<IContentAdapterProvider>()
-				.ResolveAdapter<NodeAdapter>(siteNode.GetContentType())
+				.ResolveAdapter<NodeAdapter>(siteNode)
 				.GetUploadDirectories(site))
 			{
 				if(node == null)

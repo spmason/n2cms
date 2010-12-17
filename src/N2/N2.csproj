@@ -123,6 +123,7 @@
     <Compile Include="Collections\ItemList.generic.cs" />
     <Compile Include="Collections\TypeFilter.cs" />
     <Compile Include="Collections\ZoneFilter.cs" />
+    <Compile Include="Configuration\MembershipElement.cs" />
     <Compile Include="Definitions\ICommentable.cs" />
     <Compile Include="Definitions\IContentPage.cs" />
     <Compile Include="Definitions\IDefinitionManager.cs" />
@@ -713,7 +714,6 @@
     <Compile Include="Web\UI\WebControls\Repeater.cs" />
     <Compile Include="Web\UI\WebControls\SimpleTemplateContainer.cs" />
     <Compile Include="Web\UI\WebControls\DroppableZone.cs" />
-    <Compile Include="Web\UI\WebControls\DropPoint.cs" />
     <Compile Include="Web\UI\WebControls\HasValue.cs" />
     <Compile Include="Web\UI\WebControls\Li.cs" />
     <Compile Include="Web\UI\WebControls\SlidingCurtain.cs" />

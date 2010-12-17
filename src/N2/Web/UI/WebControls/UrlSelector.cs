@@ -39,7 +39,7 @@ namespace N2.Web.UI.WebControls
 			set { ViewState["ButtonText"] = value; }
 		}
 
-		/// <summary>Url to the page responsible for selecting urls.</summary>
+		/// <summary>Url to the page responsible for selecting managementUrls.</summary>
 		public string BrowserUrl
 		{
 			get { return (string)ViewState["BrowserUrl"] ?? N2.Web.Url.Parse("{ManagementUrl}/Content/Navigation/Tree.aspx").ResolveTokens().AppendQuery("location=selection"); }
@@ -124,7 +124,7 @@ function openUrlSelectorPopup(popupUrl,tbId,popupOptions,defaultMode,availableMo
 			hib.Attributes["class"] = "popupButton selectorButton";
 			Controls.Add(hib);
 			hib.Attributes["onclick"] = string.Format(OpenPopupFormat,
-													  N2.Web.Url.ToAbsolute(BrowserUrl),
+													  N2.Web.Url.ResolveTokens(BrowserUrl),
 													  ClientID,
 													  PopupOptions,
 													  DefaultMode,
