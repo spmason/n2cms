@@ -527,39 +527,25 @@ namespace N2
 		public virtual PathData FindPath(string remainingUrl)
 		{
 			if (remainingUrl == null)
-				return GetTemplate(string.Empty);
+				return PathDictionary.GetPath(this, string.Empty);
 
 			remainingUrl = remainingUrl.TrimStart('/');
 
 			if (remainingUrl.Length == 0)
-				return GetTemplate(string.Empty);
+				return PathDictionary.GetPath(this, string.Empty);
 
 			int slashIndex = remainingUrl.IndexOf('/');
 			string nameSegment = HttpUtility.UrlDecode(slashIndex < 0 ? remainingUrl : remainingUrl.Substring(0, slashIndex));
 			foreach (ContentItem child in GetChildren(new NullFilter()))
 			{
-				if (child.Equals(nameSegment))
+				if (child.IsNamed(nameSegment))
 				{
 					remainingUrl = slashIndex < 0 ? null : remainingUrl.Substring(slashIndex + 1);
 					return child.FindPath(remainingUrl);
 				}
 			}
 
-			return GetTemplate(remainingUrl);
-		}
-
-		private PathData GetTemplate(string remainingUrl)
-		{
-			IPathFinder[] finders = PathDictionary.GetFinders(GetContentType());
-
-			foreach (IPathFinder finder in finders)
-			{
-				PathData data = finder.GetPath(this, remainingUrl);
-				if (data != null)
-					return data;
-			}
-
-			return PathData.None(this, remainingUrl);
+			return PathDictionary.GetPath(this, remainingUrl);
 		}
 
     	/// <summary>Tries to get a child item with a given name. This method igonres user permissions and any trailing '.aspx' that might be part of the name.</summary>
@@ -584,7 +570,7 @@ namespace N2
 				string nameSegment = HttpUtility.UrlDecode(childName.Substring(0, slashIndex));
 				foreach (ContentItem child in GetChildren(new NullFilter()))
 				{
-					if (child.Equals(nameSegment))
+					if (child.IsNamed(nameSegment))
 					{
 						return child.GetChild(childName.Substring(slashIndex));
 					}
@@ -595,7 +581,7 @@ namespace N2
 			// no slash, only a name
 			foreach (ContentItem child in GetChildren(new NullFilter()))
 			{
-				if (child.Equals(childName))
+				if (child.IsNamed(childName))
 				{
 					return child;
 				}
@@ -608,7 +594,7 @@ namespace N2
 		/// </summary>
 		/// <param name="name">The name to compare against.</param>
 		/// <returns>True if the supplied name is considered the same as the item's.</returns>
-        protected virtual bool Equals(string name)
+        protected virtual bool IsNamed(string name)
         {
             if (Name == null)
                 return false;
